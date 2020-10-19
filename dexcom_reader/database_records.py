@@ -26,7 +26,7 @@ class BaseDatabaseRecord(object):
   @property
   def FMT(self):
     self._CheckFormat()
-    return _ClassFormat()
+    return self._ClassFormat()
 
   @property
   def SIZE(self):
@@ -157,10 +157,9 @@ class Calibration(GenericTimestampedRecord):
     unpacked_data = cls._ClassFormat().unpack(cal_data)
     return cls(unpacked_data, raw_data)
 
-  def __init__ (self, data, raw_data):
+  def __init__(self, data, raw_data):
+    super().__init__(data, raw_data)
     self.page_data = raw_data
-    self.raw_data = raw_data
-    self.data = data
     subsize = struct.calcsize(SubCal.FORMAT)
     offset = self.numsub * subsize
     calsize = struct.calcsize(self.FORMAT)
@@ -169,7 +168,7 @@ class Calibration(GenericTimestampedRecord):
     crcdata = raw_data[calsize+offset:calsize+offset+2]
 
     subcals = [ ]
-    for i in xrange(self.numsub):
+    for i in range(self.numsub):
       offset = i * subsize
       raw_sub = subdata[offset:offset+subsize]
       sub = SubCal(raw_sub, self.data[1])
@@ -197,8 +196,8 @@ class SubCal (GenericTimestampedRecord):
   FORMAT = '<IIIIc'
   BASE_FIELDS = [ ]
   FIELDS = [ 'entered', 'meter',  'sensor', 'applied', ]
-  def __init__ (self, raw_data, displayOffset=None):
-    self.raw_data = raw_data
+  def __init__ (self, data, raw_data, displayOffset=None):
+    super().__init__(data, raw_data)
     self.data = self._ClassFormat().unpack(raw_data)
     self.displayOffset = displayOffset
   @property

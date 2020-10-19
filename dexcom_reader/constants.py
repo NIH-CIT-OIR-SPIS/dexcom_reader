@@ -2,11 +2,11 @@ import datetime
 
 
 class Error(Exception):
-  """Base error for dexcom reader."""
+    """Base error for dexcom reader."""
 
 
 class CrcError(Error):
-  """Failed to CRC properly."""
+    """Failed to CRC properly."""
 
 
 DEXCOM_USB_VENDOR = 0x22a3
