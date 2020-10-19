@@ -76,11 +76,13 @@ class Dexcom(object):
 
   def readpacket(self, timeout=None):
     total_read = 4
-    initial_read = self.read(total_read)
-    all_data = initial_read
-    if ord(initial_read[0]) == 1:
-      command = initial_read[3]
-      data_number = struct.unpack('<H', initial_read[1:3])[0]
+    initial_read_bytes = self.read(total_read)
+    # Changed initial_read_bytes from bytes to unicode
+    initial_read_unicode = initial_read_bytes.decode('utf-8', 'replace')
+    all_data = initial_read_bytes
+    if ord(initial_read_unicode[0]) == 1:
+      command = initial_read_bytes[3]
+      data_number = struct.unpack('<H', initial_read_bytes[1:3])[0]
       if data_number > 6:
         toread = abs(data_number-6)
         second_read = self.read(toread)
@@ -111,7 +113,8 @@ class Dexcom(object):
     if packetlen < 6 or packetlen > 1590:
       raise constants.Error('Invalid packet length')
     self.flush()
-    self.write(packet)
+    # Used encode to change string from unicode to bytes
+    self.write(packet.encode())
 
   def WriteCommand(self, command_id, *args, **kwargs):
     p = packetwriter.PacketWriter()

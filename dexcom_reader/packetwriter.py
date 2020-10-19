@@ -28,6 +28,7 @@ class PacketWriter(object):
     ps = self.PacketString()
     crc = crc16.crc16(ps, 0, len(ps))
     for x in struct.pack('H', crc):
+      # Added chr() function to ensure successful appending
       self._packet.append(chr(x))
 
   def SetLength(self):
