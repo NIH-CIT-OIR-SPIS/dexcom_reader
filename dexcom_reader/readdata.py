@@ -77,11 +77,9 @@ class Dexcom(object):
   def readpacket(self, timeout=None):
     total_read = 4
     initial_read = self.read(total_read)
-    # Changed initial_read_bytes from bytes to unicode; still unsure of how to best do this conversion as it is currently failing downstream
-    initial_read_unicode = initial_read.decode('utf-8', 'ignore')
     all_data = initial_read
-    # Made 'ord()' evaluate the unicode version of the string rather than the bytes version
-    if ord(initial_read_unicode[0]) == 1:
+    # Removed 'ord()' from if statement below to avoid conversion to str
+    if initial_read[0] == 1:
       command = initial_read[3]
       data_number = struct.unpack('<H', initial_read[1:3])[0]
       if data_number > 6:
@@ -89,18 +87,13 @@ class Dexcom(object):
         second_read = self.read(toread)
         # Added print() statement to visualize data in second_read
         all_data += second_read
-        f = open('data.txt', 'wb')
-        f.write(all_data)
-        f.close()
         total_read += toread
         out = second_read
       else:
         out =  ''
       suffix = self.read(2)
       sent_crc = struct.unpack('<H', suffix)[0]
-      # Changed all_data from bytes to unicode; used ignore here due to error with crc16.crc16 when using replace (indexed value in TABLE is too high)
-      # Changed third argument of crc16.crc16() from total_read due to same error as above
-      local_crc = crc16.crc16(all_data.decode('utf-8', 'ignore'), 0, len(all_data.decode('utf-8', 'ignore')))
+      local_crc = crc16.crc16BINARY(all_data, 0, len(all_data))
       if sent_crc != local_crc:
         raise constants.CrcError("readpacket Failed CRC check")
       num1 = total_read + 2

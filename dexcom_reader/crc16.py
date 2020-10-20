@@ -35,3 +35,13 @@ def crc16(buf, start=None, end=None):
     for i in range(start, end):
         num = ((num << 8) & 0xff00) ^ TABLE[((num >> 8) & 0xff) ^ ord(buf[i])]
     return num & 0xffff
+
+def crc16BINARY(buf, start=None, end=None):
+    if start is None:
+        start = 0
+    if end is None:
+        end = len(buf)
+    num = 0
+    for i in range(start, end):
+        num = ((num << 8) & 0xff00) ^ TABLE[((num >> 8) & 0xff) ^ buf[i]]
+    return num & 0xffff
