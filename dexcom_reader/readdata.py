@@ -88,19 +88,19 @@ class Dexcom(object):
         toread = abs(data_number-6)
         second_read = self.read(toread)
         # Added print() statement to visualize data in second_read
-        print(second_read)
         all_data += second_read
+        f = open('data.txt', 'wb')
+        f.write(all_data)
+        f.close()
         total_read += toread
         out = second_read
       else:
         out =  ''
       suffix = self.read(2)
       sent_crc = struct.unpack('<H', suffix)[0]
-      print(sent_crc)
       # Changed all_data from bytes to unicode; used ignore here due to error with crc16.crc16 when using replace (indexed value in TABLE is too high)
-      # Changed third argument of crc16.crc16 from total_read due to same error as above
+      # Changed third argument of crc16.crc16() from total_read due to same error as above
       local_crc = crc16.crc16(all_data.decode('utf-8', 'ignore'), 0, len(all_data.decode('utf-8', 'ignore')))
-      print(local_crc)
       if sent_crc != local_crc:
         raise constants.CrcError("readpacket Failed CRC check")
       num1 = total_read + 2
